@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ValidateJWT;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -43,6 +44,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            SetLocale::class,
             ValidateJWT::class
         ],
     ];

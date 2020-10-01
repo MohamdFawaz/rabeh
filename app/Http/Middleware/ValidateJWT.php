@@ -46,6 +46,10 @@ class ValidateJWT
             return response()->json([
                 'message' => __('message.token_absent')
             ], JsonResponse::HTTP_UNAUTHORIZED);
+        } catch(\Exception $e){
+            return response()->json([
+                'message' => __('message.token_error')
+            ], JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         // the token is valid and we have exposed the contents
