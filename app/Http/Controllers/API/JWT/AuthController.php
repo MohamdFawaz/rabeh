@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\JWT;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
+use App\Http\Resources\API\ProfileResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
@@ -59,7 +60,8 @@ class AuthController extends Controller
      */
     public function profile()
     {
-        return response()->json(auth('api')->user());
+        $user = ProfileResource::make(auth('api')->user());
+        return response()->json($user);
     }
 
     /**
