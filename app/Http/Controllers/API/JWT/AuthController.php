@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\API\JWT;
 
+use App\Http\Controllers\API\APIController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Http\Resources\API\ProfileResource;
+use App\Http\Resources\API\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
+    use APIController;
     /**
      * Create a new AuthController instance.
      *
@@ -33,10 +36,12 @@ class AuthController extends Controller
             ['password' => bcrypt($request->password)]
         ));
 
-        return response()->json([
-            'message' => 'Successfully registered',
-            'user' => $user
-        ], 201);
+
+        $token = auth('api')->login($user);
+
+        $this->setTokenAttributes($user, $token);
+
+        return $this->respond(UserResource::make($user));
     }
 
     /**
@@ -47,10 +52,13 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         if (! $token = auth('api')->attempt($request->only('email','password'))) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return $this->respondUnauthorized(__('message.unauthorized'));
         }
+        $user = auth('api')->user();
 
-        return $this->createNewToken($token);
+        $this->setTokenAttributes($user, $token);
+
+        return $this->respond(UserResource::make($user));
     }
 
     /**
@@ -100,5 +108,11 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
         ]);
+    }
+
+    protected function setTokenAttributes(&$user,$token)
+    {
+        $user->setAttribute('token', $token);
+        $user->setAttribute('expires_in', auth('api')->factory()->getTTL() * 60);
     }
 }

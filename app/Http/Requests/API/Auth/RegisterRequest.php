@@ -27,6 +27,7 @@ class RegisterRequest extends APIRequest
             'name' => 'required|between:2,100',
             'email' => 'required|email|unique:users|max:50',
             'password' => 'required|confirmed|string|min:5',
+            'phone' => 'required'
         ];
     }
 }
