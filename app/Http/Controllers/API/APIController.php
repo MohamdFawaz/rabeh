@@ -112,14 +112,19 @@ trait APIController {
     }
 
     /**
-     * @param $data
+     * @param $data;
+     * @param $message;
      * @param array $headers
      *
      * @return mixed
      */
-    public function respond($data, $headers = [])
+    public function respond($data, $message = '', $headers = [])
     {
-        return response()->json($data, $this->getStatusCode(), $headers);
+        return response()->json([
+            'status' => $this->statusCode,
+            'message' => $message,
+            'data' => $data
+        ], $this->getStatusCode(), $headers);
     }
 
     /**
@@ -130,10 +135,9 @@ trait APIController {
     public function respondWithError($message)
     {
         return $this->respond([
-            'error' => [
-                'data'        => $message,
-                'status_code' => $this->getStatusCode()
-            ]
+            'status' => $this->statusCode,
+            'message' => $message,
+            'data' => []
         ]);
     }
 }
