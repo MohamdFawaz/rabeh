@@ -21,15 +21,15 @@ class EntityController extends Controller
 
     public function index()
     {
-        $entities = Entity::query()->withTranslation()->paginate(6);
+        $entities = Entity::query()->withTranslation()->get(); //todo add pagination
 
-        return $this->respond(EntityResource::collection($entities),['last_page' => $entities->lastPage()]);
+        return $this->respond(EntityResource::collection($entities));
     }
 
     public function offerBanner()
     {
-        $offer_entities = Entity::query()->withTranslation()->paginate(3);
+        $offer_entities = Entity::query()->withTranslation()->get(); //todo add pagination
 
-        return $this->respond(EntityResource::collection($offer_entities),['last_page' => $offer_entities->lastPage()]);
+        return $this->respond(EntityResource::collection($offer_entities));
     }
 }

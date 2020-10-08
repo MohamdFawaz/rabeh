@@ -8,8 +8,11 @@ use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Http\Resources\API\ProfileResource;
 use App\Http\Resources\API\UserResource;
+use App\Mail\NewUserVerificationMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\Request;
 
 class AuthController extends Controller
 {
@@ -41,6 +44,12 @@ class AuthController extends Controller
 
         $this->setTokenAttributes($user, $token);
 
+        try {
+           $mail =  Mail::to($request->email)->send(new NewUserVerificationMail());
+        }catch (\Exception $e){
+            dd($e->getMessage());
+        }
+
         return $this->respond(UserResource::make($user));
     }
 
@@ -68,8 +77,8 @@ class AuthController extends Controller
      */
     public function profile()
     {
-        $user = ProfileResource::make(auth('api')->user());
-        return response()->json($user);
+        $user = UserResource::make(User::query()->find(request()->user_id));
+        return $this->respond($user);
     }
 
     /**
@@ -79,9 +88,11 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth('api')->logout();
+        $user = User::query()->find(request()->user_id);
+        $user->setRememberToken('');
+        $user->save();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->respond([],'Successfully logged out');
     }
 
     /**
@@ -91,7 +102,7 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->createNewToken(auth('api')->refresh());
+        return $this->respond($this->createNewToken(auth('api')->refresh()));
     }
 
     /**
@@ -99,19 +110,22 @@ class AuthController extends Controller
      *
      * @param  string $token
      *
-     * @return JsonResponse
+     * @return array
      */
     protected function createNewToken($token)
     {
-        return response()->json([
+        return [
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => auth('api')->factory()->getTTL() * 60
-        ]);
+        ];
     }
 
     protected function setTokenAttributes(&$user,$token)
     {
+        $user->remember_token = $token;
+        $user->save();
+
         $user->setAttribute('token', $token);
         $user->setAttribute('expires_in', auth('api')->factory()->getTTL() * 60);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -28,12 +29,8 @@ class ValidateJWT
         $token = str_replace('Bearer ', "", $request->header('Authorization'));
 
         try {
-            JWTAuth::setToken($token);
-            if (!$claim = JWTAuth::getPayload()) {
-                return response()->json([
-                    'message' => __('message.user_not_found')
-                ], JsonResponse::HTTP_NOT_FOUND);
-            }
+           $user = User::query()->where('remember_token',$token)->firstOrFail();
+           $request->merge(['user_id' => $user->id]);
         } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
             return response()->json([
                 'message' => __('message.token_expired')
