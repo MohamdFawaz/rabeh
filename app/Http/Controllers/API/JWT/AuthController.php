@@ -12,6 +12,7 @@ use App\Mail\NewUserVerificationMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\Request;
 
 class AuthController extends Controller
 {
@@ -76,7 +77,7 @@ class AuthController extends Controller
      */
     public function profile()
     {
-        $user = UserResource::make(auth('api')->user());
+        $user = UserResource::make(User::query()->find(request()->user_id));
         return $this->respond($user);
     }
 
@@ -87,9 +88,11 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth('api')->logout();
+        $user = User::query()->find(request()->user_id);
+        $user->setRememberToken('');
+        $user->save();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->respond([],'Successfully logged out');
     }
 
     /**
