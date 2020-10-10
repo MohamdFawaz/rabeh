@@ -21,6 +21,7 @@ class UserResource extends JsonResource
           "phone" => $this->phone,
           "user_code" => $this->user_code ?? "-",
           "is_email_verified" => $this->email_verified_at ? true : false,
+          "user_type_id" => $this->user_type_id,
           "share_balance" => $this->share_balance,
           "coin_balance" => $this->coin_balance,
           "cash_balance" => $this->cash_balance,

@@ -16,8 +16,8 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
     });
 
     Route::group(['prefix' => 'entities'], function (){
-        Route::get('/',[EntityController::class,'index']);
-        Route::get('/offer-banner',[EntityController::class,'offerBanner']);
+        Route::get('/',[EntityController::class,'index'])->withoutMiddleware(ValidateJWT::class);
+        Route::get('/offer-banner',[EntityController::class,'offerBanner'])->withoutMiddleware(ValidateJWT::class);
     });
 
     Route::group(['prefix' => 'tickets'], function (){
