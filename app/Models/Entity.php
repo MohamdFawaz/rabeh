@@ -14,9 +14,4 @@ class Entity extends Model implements TranslatableContract
     public $translatedAttributes = ['name', 'description'];
 
     protected $guarded = [];
-
-    public function getImageAttribute($value)
-    {
-        return 'https://picsum.photos/800/600'; //todo change to dynamic url
-    }
 }
