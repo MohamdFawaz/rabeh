@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API\V1\JWT;
 
-use App\Http\Controllers\API\APIController;
+use App\Http\Controllers\API\V1\APIController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
