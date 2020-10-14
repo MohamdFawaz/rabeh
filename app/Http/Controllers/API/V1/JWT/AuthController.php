@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\API\V1\JWT;
 
-use App\Http\Controllers\API\APIController;
+use App\Http\Controllers\API\V1\APIController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
-use App\Http\Resources\API\ProfileResource;
 use App\Http\Resources\API\UserResource;
 use App\Mail\NewUserVerificationMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Mail;
-use Symfony\Component\HttpFoundation\Request;
 
 class AuthController extends Controller
 {
