@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\JWT\AuthController;
+use App\Http\Controllers\API\V1\JWT\AuthController;
 use App\Http\Middleware\ValidateJWT;
-use App\Http\Controllers\API\EntityController;
-use App\Http\Controllers\API\TicketController;
+use App\Http\Controllers\API\V1\EntityController;
+use App\Http\Controllers\API\V1\TicketController;
+use App\Http\Controllers\API\V1\VoucherController;
 
 Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
     Route::group(['prefix' => 'auth'], function ($router) {
@@ -22,6 +23,10 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
 
     Route::group(['prefix' => 'tickets'], function (){
        Route::get('/',[TicketController::class,'index']);
+    });
+
+    Route::group(['prefix' => 'vouchers'], function (){
+       Route::get('/',[VoucherController::class,'index']);
     });
 });
 

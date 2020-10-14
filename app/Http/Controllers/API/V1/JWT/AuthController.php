@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\JWT;
+namespace App\Http\Controllers\API\V1\JWT;
 
 use App\Http\Controllers\API\APIController;
 use App\Http\Controllers\Controller;
