@@ -1,0 +1,64 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Rabeh Users API documentation
+
+servers:
+  - url: https://rabe7entertainment.com/api/v1
+  - url: http://rabeh.local/api/v1
+
+security:
+  - bearerAuth: []
+paths:
+  /vouchers:
+    get:
+      summary: List all user vouchers
+      operationId: listVouchers
+      tags:
+        - Vouchers
+      responses:
+        200:
+          description: An array of vouchers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Voucher'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+
+  schemas:
+    Voucher:
+      type: object
+      properties:
+        id:
+          type: number
+        price:
+          type: string
+        expires_at:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+    Error:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
