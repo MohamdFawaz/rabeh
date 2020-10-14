@@ -5,4 +5,7 @@ return array (
   'token_expired' => 'رمز منتهي',
   'token_invalid' => 'رمز خاطئ',
   'token_absent' => 'لايوجد رمز',
+  'register' => [
+    'registered_successfully'  => 'تم تسجيل الحساب ينجاح'
+  ],
 );

@@ -50,7 +50,7 @@ class AuthController extends Controller
             return $this->respondBadRequest("Failed to send email");
         }
 
-        return $this->respond(UserResource::make($user));
+        return $this->respond([],__('message.register.registered_successfully'));
     }
 
     /**

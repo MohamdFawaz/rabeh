@@ -5,4 +5,7 @@ return array (
   'token_expired' => 'Token Expired',
   'token_invalid' => 'Invalid Token',
   'token_absent' => 'Token Absent',
+  'register' => [
+      'registered_successfully'  => 'Account Created Successfully'
+  ]
 );
