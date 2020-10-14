@@ -17,7 +17,7 @@ class TicketResource extends JsonResource
         return [
             'id' => $this->id,
             'price' => $this->price,
-            'logo' => $this->image,
+            'logo' => 'https://picsum.photos/800/600', //todo change with dynamic images
             'owner_name' => $this->owner_name,
             'name' => $this->name,
             'description' => $this->description,

@@ -17,7 +17,7 @@ class EntityResource extends JsonResource
         return [
           'id' => $this->id,
           'price' => $this->price,
-          'image' => $this->image,
+          'image' => 'https://picsum.photos/800/600', //todo change with dynamic image
           'name' => $this->name,
           'description' => $this->description
         ];
