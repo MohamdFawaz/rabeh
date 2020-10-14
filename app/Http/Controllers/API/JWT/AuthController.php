@@ -45,9 +45,9 @@ class AuthController extends Controller
         $this->setTokenAttributes($user, $token);
 
         try {
-           $mail =  Mail::to($request->email)->send(new NewUserVerificationMail());
+           Mail::to($request->email)->send(new NewUserVerificationMail());
         }catch (\Exception $e){
-            dd($e->getMessage());
+            return $this->respondBadRequest("Failed to send email");
         }
 
         return $this->respond(UserResource::make($user));

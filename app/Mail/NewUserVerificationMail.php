@@ -29,6 +29,7 @@ class NewUserVerificationMail extends Mailable
     public function build()
     {
         $verification_url = url('/');
-        return $this->from(env('MAIL_FROM_ADDRESS'))->view('email.verify_mail',compact('verification_url'));
+        //todo to be replaced with variable
+        return $this->from('mohamdfawaz93@gmail.com')->view('email.verify_mail',compact('verification_url'));
     }
 }
