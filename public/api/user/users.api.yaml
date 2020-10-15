@@ -8,7 +8,7 @@ servers:
   - url: http://rabeh.local/api/v1
 
 security:
-  - bearerAuth: []    
+  - bearerAuth: []
 paths:
   /vouchers:
     get:
@@ -31,12 +31,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /points/redeem:
+    post:
+      summary: Redeem points
+      operationId: redeemPoints
+      tags:
+        - Points
+      requestBody:
+        required: true
+        description: Points amount to be redeemed
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedeemPointsRequest'
+      responses:
+        201:
+          description: Redeemed points response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Created'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
+    bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+      bearerFormat: JWT
   schemas:
     Voucher:
       type: object
@@ -51,6 +79,7 @@ components:
           type: string
         description:
           type: string
+
     Error:
       type: object
       required:
@@ -61,3 +90,23 @@ components:
           type: integer
         message:
           type: string
+
+    Created:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+
+    RedeemPointsRequest:
+      type: object
+      required:
+        - points_amount
+      properties:
+        points_amount:
+          type: number
+          description: Points amount

@@ -16,6 +16,13 @@ paths:
       operationId: exchangeCash
       tags:
         - Cash Exchange
+      requestBody:
+        description: Cash Exchange Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeCashRequest'
       responses:
         201:
           description: created cash response
@@ -36,19 +43,20 @@ components:
       scheme: bearer
       bearerFormat: JWT    # optional, arbitrary value for documentation purposes
   schemas:
-    Voucher:
+    ExchangeCashRequest:
       type: object
       properties:
-        id:
-          type: number
         price:
+          type: number
+        paid_amount:
+          type: number
+        member_code:
           type: string
-        expires_at:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
+      required:
+        - price
+        - paid_amount
+        - type
+
     Error:
       type: object
       required:

@@ -6,6 +6,8 @@ use App\Http\Middleware\ValidateJWT;
 use App\Http\Controllers\API\V1\EntityController;
 use App\Http\Controllers\API\V1\TicketController;
 use App\Http\Controllers\API\V1\VoucherController;
+use App\Http\Controllers\API\V1\TraderController;
+use App\Http\Controllers\API\V1\PointController;
 
 Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
     Route::group(['prefix' => 'auth'], function ($router) {
@@ -27,6 +29,14 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
 
     Route::group(['prefix' => 'vouchers'], function (){
        Route::get('/',[VoucherController::class,'index']);
+    });
+
+    Route::group(['prefix' => 'trader'],function (){
+       Route::post('/exchange-cash',[TraderController::class,'exchangeCash']);
+    });
+
+    Route::group(['prefix' => 'points'],function (){
+       Route::post('/redeem',[PointController::class,'redeemPoints']);
     });
 });
 

@@ -1,0 +1,80 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Rabeh Trader API documentation
+
+servers:
+  - url: https://rabe7entertainment.com/api/v1
+  - url: http://rabeh.local/api/v1
+
+security:
+  - bearerAuth: []
+paths:
+  /trader/exchange-cash:
+    post:
+      summary: Exchange user cash with points
+      operationId: exchangeCash
+      tags:
+        - Cash Exchange
+      requestBody:
+        description: Cash Exchange Request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeCashRequest'
+      responses:
+        201:
+          description: created cash response
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Created'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+  schemas:
+    ExchangeCashRequest:
+      type: object
+      properties:
+        price:
+          type: number
+        paid_amount:
+          type: number
+        member_code:
+          type: string
+      required:
+        - price
+        - paid_amount
+        - type
+
+    Error:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+
+    Created:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+        message:
+          type: string

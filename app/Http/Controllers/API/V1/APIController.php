@@ -103,12 +103,12 @@ trait APIController {
 
     /**
      * @param array $data
-     *
+     * @param string $message
      * @return mixed
      */
-    public function respondCreated($data = [])
+    public function respondCreated($data = [],$message = 'Created Successfully')
     {
-        return $this->setStatusCode(Response::HTTP_CREATED)->respond($data);
+        return $this->setStatusCode(Response::HTTP_CREATED)->respond($data,$message);
     }
 
     /**

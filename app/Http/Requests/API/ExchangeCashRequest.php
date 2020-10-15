@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Requests\API\Auth;
+namespace App\Http\Requests\API;
 
-use App\Http\Requests\API\APIRequest;
 
-class LoginRequest extends APIRequest
+class ExchangeCashRequest extends APIRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +23,9 @@ class LoginRequest extends APIRequest
     public function rules()
     {
         return [
-            'email' => 'required|email',
-            'password' => 'required|string|min:5',
+            'price' => 'required',
+            'paid_amount' => 'required',
+            'member_code' => 'required',
         ];
     }
 
