@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\V1\JWT;
 use App\Http\Controllers\API\V1\APIController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
+use App\Http\Requests\API\Auth\ReferralCodeRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Http\Requests\API\ForgotPasswordRequest;
 use App\Http\Resources\API\UserResource;
@@ -39,7 +40,10 @@ class AuthController extends Controller
     {
         $user = User::query()->create(array_merge(
             $request->all(),
-            ['password' => bcrypt($request->password)]
+            [
+                'password' => bcrypt($request->password),
+                'referral_code' => Str::random(15)
+            ]
         ));
 
 
@@ -157,5 +161,36 @@ class AuthController extends Controller
             }
         }
         return $this->respond([],__('message.reset_password_email_sent'));
+    }
+
+    public function referralCode(ReferralCodeRequest $request)
+    {
+        $user = User::query()->select('id','coin_balance','referer_id','created_at')->where('id',$request->user_id)->first();
+
+        if ($user){
+
+            if ($user->referer_id){
+                return $this->respondBadRequest(__('message.already_used_referrer_code'));
+            }
+
+            $referral_user = User::query()
+                            ->select('id','coin_balance')
+                            ->where('referral_code','=',$request->referral_code)
+                            ->where('created_at','<',$user->created_at)
+                            ->first();
+            if (!$referral_user){
+                return $this->respondBadRequest(__('message.incorrect_referral_code'));
+            }
+            $referral_user->coin_balance =+ '100';
+            $referral_user->save();
+
+            $user->coin_balance =+ '100';
+            $user->referer_id = $referral_user->id;
+            $user->save();
+
+            return $this->respondCreated([],__('message.code_added_successfully'));
+        }else{
+            return $this->respondBadRequest(__('message.something_went_wrong'));
+        }
     }
 }

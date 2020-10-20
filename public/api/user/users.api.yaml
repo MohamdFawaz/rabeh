@@ -38,6 +38,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+
+  /referral-code:
+    post:
+      summary: Enter referral code
+      operationId: referralCode
+      tags:
+        - Referral Code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                referral_code:
+                  type: string
+                  description: referral code
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Created'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /vouchers:
     get:
       summary: List all user vouchers
@@ -53,6 +83,33 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Voucher'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /voucher/redeem:
+    post:
+      summary: Redeem Voucher
+      operationId: redeemVoucher
+      tags:
+        - Vouchers
+      requestBody:
+        required: true
+        description: Points amount to be redeemed
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RedeemVoucherRequest'
+      responses:
+        200:
+          description: Created Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Created'
         default:
           description: unexpected error
           content:
@@ -180,3 +237,21 @@ components:
         points_amount:
           type: number
           description: Points amount
+
+    RedeemVoucherRequest:
+      type: object
+      required:
+        - voucher_id
+      properties:
+        voucher_id:
+          type: number
+          description: Voucher amount
+
+    ReferralCodeRequest:
+      type: object
+      required:
+        - referral_code
+      properties:
+        referral_code:
+          type: string
+          description: referral code
