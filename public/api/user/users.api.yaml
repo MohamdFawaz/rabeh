@@ -10,6 +10,34 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /auth/forgot-password:
+    post:
+      summary: Send reset password mail
+      operationId: forgotPassword
+      tags:
+        - Forgot Password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  description: user email
+      responses:
+        200:
+          description: Email sent successfully respone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /vouchers:
     get:
       summary: List all user vouchers
@@ -59,6 +87,37 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+
+  /tickets/redeem:
+    post:
+      summary: Redeem ticket
+      operationId: redeemTicket
+      tags:
+        - Tickets
+      requestBody:
+        required: true
+        description: Ticket ID to be redeemed
+        content:
+          application/json:
+            schema:
+              properties:
+                ticket_id:
+                  type: number
+                  description: ticket id to be redeemed
+      responses:
+        201:
+          description: Redeemed ticket response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Created'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   securitySchemes:
     bearerAuth:
@@ -92,6 +151,17 @@ components:
           type: string
 
     Created:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+
+    Message:
       type: object
       required:
         - status

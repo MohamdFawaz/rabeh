@@ -16,6 +16,7 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
         Route::post('refresh', [AuthController::class, 'refresh'])->withoutMiddleware(ValidateJWT::class);
         Route::get('profile', [AuthController::class, 'profile']);
         Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('forgot-password', [AuthController::class, 'forgotPassword'])->withoutMiddleware(ValidateJWT::class);
     });
 
     Route::group(['prefix' => 'entities'], function (){
@@ -25,6 +26,7 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
 
     Route::group(['prefix' => 'tickets'], function (){
        Route::get('/',[TicketController::class,'index']);
+       Route::get('/redeem',[TicketController::class,'redeemTicket']);
     });
 
     Route::group(['prefix' => 'vouchers'], function (){

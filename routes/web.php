@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Web\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/auth/reset-password',[AuthController::class,'resetPassword'])->name('web.resetPasswordForm');
+Route::post('/auth/reset-password',[AuthController::class,'updatePassword']);

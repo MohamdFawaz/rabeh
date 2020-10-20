@@ -14,3 +14,4 @@ yarn-error.log
 .idea
 rabeh-api-error_log
 rabeh-api.in-access_log
+rabeh-api.error_log

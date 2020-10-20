@@ -6,11 +6,16 @@ use App\Http\Controllers\API\V1\APIController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Auth\LoginRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
+use App\Http\Requests\API\ForgotPasswordRequest;
 use App\Http\Resources\API\UserResource;
+use App\Mail\ForgotPasswordMail;
 use App\Mail\NewUserVerificationMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -126,5 +131,31 @@ class AuthController extends Controller
 
         $user->setAttribute('token', $token);
         $user->setAttribute('expires_in', auth('api')->factory()->getTTL() * 60);
+    }
+
+    public function forgotPassword(ForgotPasswordRequest $request)
+    {
+        $user = User::query()->where('email',$request->email)->first();
+        if (!$user){
+            return $this->respondBadRequest(__('message.no_account_found_associated_with_provided_email'));
+        }else{
+            try {
+                $token = Str::random(20);
+
+                DB::table('password_resets')
+                        ->where('email',$request->email)
+                        ->delete();
+                DB::table('password_resets')->insert([
+                    'email' => $request->email,
+                    'token' => $token,
+                    'created_at' => now()
+                    ]);
+                Mail::to($request->email)->send(new ForgotPasswordMail($token));
+            }catch (\Exception $e){
+                Log::critical(serialize($e->getTraceAsString()));
+                return $this->respondBadRequest(__('message.error_in_sending_email'));
+            }
+        }
+        return $this->respond([],__('message.reset_password_email_sent'));
     }
 }
