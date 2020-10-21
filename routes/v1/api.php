@@ -18,6 +18,7 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
         Route::get('profile', [AuthController::class, 'profile']);
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('referral-code', [AuthController::class, 'referralCode']);
+    });
 
         Route::group(['prefix' => 'entities'], function (){
             Route::get('/',[EntityController::class,'index'])->withoutMiddleware(ValidateJWT::class);
@@ -41,7 +42,6 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
         Route::group(['prefix' => 'points'],function (){
            Route::post('/redeem',[PointController::class,'redeemPoints']);
         });
-    });
 
 });
 
