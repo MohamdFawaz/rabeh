@@ -38,25 +38,32 @@ class AuthController extends Controller
      */
     public function register(RegisterRequest $request)
     {
-        $user = User::query()->create(array_merge(
-            $request->all(),
-            [
-                'password' => bcrypt($request->password),
-            ]
-        ));
-
-
-        $token = auth('api')->login($user);
-
-        $this->setTokenAttributes($user, $token);
 
         try {
-           Mail::to($request->email)->send(new NewUserVerificationMail());
-        }catch (\Exception $e){
-            return $this->respondBadRequest("Failed to send email");
-        }
+            $user = User::query()->create(array_merge(
+                $request->all(),
+                [
+                    'password' => bcrypt($request->password),
+                ]
+            ));
 
-        return $this->respond([],__('message.register.registered_successfully'));
+
+            $token = auth('api')->login($user);
+
+            $this->setTokenAttributes($user, $token);
+            if ($request->referral_code){
+                $validate_referral = $this->validateReferralCode($user->id, $request->referral_code);
+                if ($validate_referral !== true) {
+                    $user->delete();
+                    return $validate_referral;
+                }
+            }
+            Mail::to($request->email)->send(new NewUserVerificationMail());
+            return $this->respond([], __('message.register.registered_successfully'));
+        }catch (\Exception $e){
+            Log::critical(serialize($e->getTrace()));
+            return $this->respondBadRequest(__('message.something_went_wrong'));
+        }
     }
 
     /**
@@ -164,32 +171,36 @@ class AuthController extends Controller
 
     public function referralCode(ReferralCodeRequest $request)
     {
-        $user = User::query()->select('id','coin_balance','referer_id','created_at')->where('id',$request->user_id)->first();
-
-        if ($user){
-
-            if ($user->referer_id){
-                return $this->respondBadRequest(__('message.already_used_referrer_code'));
-            }
-
-            $referral_user = User::query()
-                            ->select('id','coin_balance')
-                            ->where('referral_code','=',$request->referral_code)
-                            ->where('created_at','<',$user->created_at)
-                            ->first();
-            if (!$referral_user){
-                return $this->respondBadRequest(__('message.incorrect_referral_code'));
-            }
-            $referral_user->coin_balance =+ '100';
-            $referral_user->save();
-
-            $user->coin_balance =+ '100';
-            $user->referer_id = $referral_user->id;
-            $user->save();
-
+        $validate_code = $this->validateReferralCode($request->user_id,$request->referral_code);
+        if ($validate_code === true){
             return $this->respondCreated([],__('message.code_added_successfully'));
         }else{
-            return $this->respondBadRequest(__('message.something_went_wrong'));
+            return $validate_code;
         }
+    }
+
+    private function validateReferralCode($user_id,$referral_code)
+    {
+        $user = User::query()->select('id','coin_balance','referer_id','created_at')->where('id',$user_id)->first();
+
+        if ($user->referer_id){
+            return $this->respondBadRequest(__('message.already_used_referrer_code'));
+        }
+
+        $referral_user = User::query()
+            ->select('id','coin_balance')
+            ->where('referral_code','=',$referral_code)
+            ->where('created_at','<',$user->created_at)
+            ->first();
+        if (!$referral_user){
+            return $this->respondBadRequest(__('message.incorrect_referral_code'));
+        }
+        $referral_user->coin_balance =+ '100';
+        $referral_user->save();
+
+        $user->coin_balance =+ '100';
+        $user->referer_id = $referral_user->id;
+        $user->save();
+        return true;
     }
 }
