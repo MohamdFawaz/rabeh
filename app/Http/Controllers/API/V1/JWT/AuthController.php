@@ -42,7 +42,6 @@ class AuthController extends Controller
             $request->all(),
             [
                 'password' => bcrypt($request->password),
-                'referral_code' => Str::random(15)
             ]
         ));
 

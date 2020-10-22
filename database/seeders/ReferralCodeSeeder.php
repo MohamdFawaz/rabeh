@@ -17,7 +17,7 @@ class ReferralCodeSeeder extends Seeder
     {
         $users = User::query()->get();
         foreach ($users as $user){
-            $user->referral_code = Str::random(15);
+            $user->referral_code = $user->user_code;
             $user->save();
         }
     }
