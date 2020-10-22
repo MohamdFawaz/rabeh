@@ -9,10 +9,10 @@ trait APIController {
     /**
      * @var int
      */
-    protected $statusCode = Response::HTTP_OK;
+    protected $statusCode = 'success';
 
     /**
-     * @return int
+     * @return string
      */
     public function getStatusCode()
     {
@@ -38,7 +38,7 @@ trait APIController {
      */
     public function respondNotFound($message = 'Not Found')
     {
-        return $this->setStatusCode(Response::HTTP_NOT_FOUND)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -48,7 +48,7 @@ trait APIController {
      */
     public function respondBadRequest($message = 'Bad Request')
     {
-        return $this->setStatusCode(Response::HTTP_BAD_REQUEST)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -58,7 +58,7 @@ trait APIController {
      */
     public function respondServerError($message = 'Server Error')
     {
-        return $this->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -68,7 +68,7 @@ trait APIController {
      */
     public function respondConflict($message = 'Conflict')
     {
-        return $this->setStatusCode(Response::HTTP_CONFLICT)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -78,7 +78,7 @@ trait APIController {
      */
     public function respondUnprocessable($message = 'Unprocessable Entity')
     {
-        return $this->setStatusCode(Response::HTTP_UNPROCESSABLE_ENTITY)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -88,7 +88,7 @@ trait APIController {
      */
     public function respondUnauthorized($message = 'Unauthorized')
     {
-        return $this->setStatusCode(Response::HTTP_UNAUTHORIZED)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -98,7 +98,7 @@ trait APIController {
      */
     public function respondForbidden($message = 'Forbidden')
     {
-        return $this->setStatusCode(Response::HTTP_FORBIDDEN)->respondWithError($message);
+        return $this->setStatusCode('failed')->respondWithError($message);
     }
 
     /**
@@ -108,7 +108,7 @@ trait APIController {
      */
     public function respondCreated($data = [],$message = 'Created Successfully')
     {
-        return $this->setStatusCode(Response::HTTP_CREATED)->respond($data,$message);
+        return $this->setStatusCode('failed')->respond($data,$message);
     }
 
     /**
@@ -122,15 +122,15 @@ trait APIController {
     {
         if ($data){
             return response()->json([
-                'status' => $this->statusCode,
+                'status' => 'success',
                 'message' => $message,
                 'data' => $data
-            ], $this->getStatusCode(), $headers);
+            ], 200, $headers);
         }else{
             return response()->json([
-                'status' => $this->statusCode,
+                'status' => $this->getStatusCode(),
                 'message' => $message
-            ], $this->getStatusCode(), $headers);
+            ], 200, $headers);
         }
     }
 
