@@ -32,6 +32,8 @@ class TraderController extends Controller
                 'transaction_amount' => $amount * .25
             ]);
 
+            $target->point_balance = round($amount * .25);
+            $target->save();
             return $this->respondCreated([], __('message.coins_added_successfully'));
         }catch (\Exception $e){
             return $this->respondServerError($e);
