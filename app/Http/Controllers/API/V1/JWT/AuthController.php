@@ -12,6 +12,7 @@ use App\Http\Resources\API\UserResource;
 use App\Mail\ForgotPasswordMail;
 use App\Mail\NewUserVerificationMail;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -60,6 +61,42 @@ class AuthController extends Controller
                 }
             }
 //            $this->dispatch(new WelcomeEmailJob($request->email));
+            Mail::to($request->email)->send(new NewUserVerificationMail());
+            return $this->respond(UserResource::make($user), __('message.register.registered_successfully'));
+        }catch (\Exception $e){
+            return $this->respondServerError($e,__('message.something_went_wrong'));
+        }
+    }
+
+    /**
+     * Register a User.
+     * @param  RegisterRequest  $request
+     * @return JsonResponse
+     */
+    public function registerAsTrader(RegisterRequest $request)
+    {
+
+        try {
+            $user = User::query()->create(array_merge(
+                $request->all(),
+                [
+                    'password' => bcrypt($request->password),
+                    'user_type_id'  => 2 //user type id
+                ]
+            ));
+
+
+            $token = auth('api')->login($user);
+
+            $this->setTokenAttributes($user, $token);
+            if ($request->referral_code){
+                $validate_referral = $this->validateReferralCode($user->id, $request->referral_code);
+                if ($validate_referral !== true) {
+                    $user->delete();
+                    return $validate_referral;
+                }
+            }
+            Mail::to($request->email)->send(new NewUserVerificationMail());
             return $this->respond(UserResource::make($user), __('message.register.registered_successfully'));
         }catch (\Exception $e){
             return $this->respondServerError($e,__('message.something_went_wrong'));
@@ -89,14 +126,18 @@ class AuthController extends Controller
 
     /**
      * Get the authenticated User.
-     *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function profile()
+    public function profile(Request $request)
     {
         try {
-            $user = UserResource::make(User::query()->find(request()->user_id));
-            return $this->respond($user);
+            $user = User::query()->find(request()->user_id);
+            if ($request->has('token')){
+                $user->firebase_token = $request->token;
+                $user->save();
+            }
+            return $this->respond(UserResource::make($user));
         }catch (\Exception $e){
             return $this->respondServerError($e);
         }
@@ -171,7 +212,7 @@ class AuthController extends Controller
                     'token' => $token,
                     'created_at' => now()
                     ]);
-                $this->dispatch(new ForgotPasswordEmailJob($request->email,$token));
+                Mail::to($request->email)->send(new ForgotPasswordMail($token));
             }catch (\Exception $e){
                 return $this->respondServerError($e,__('message.error_in_sending_email'));
             }
