@@ -44,6 +44,7 @@ class AuthController extends Controller
                 $request->all(),
                 [
                     'password' => bcrypt($request->password),
+                    'user_type_id'  => 1 //user type id
                 ]
             ));
 
@@ -58,8 +59,8 @@ class AuthController extends Controller
                     return $validate_referral;
                 }
             }
-            Mail::to($request->email)->send(new NewUserVerificationMail());
-            return $this->respond([], __('message.register.registered_successfully'));
+//            $this->dispatch(new WelcomeEmailJob($request->email));
+            return $this->respond(UserResource::make($user), __('message.register.registered_successfully'));
         }catch (\Exception $e){
             return $this->respondServerError($e,__('message.something_went_wrong'));
         }
@@ -170,7 +171,7 @@ class AuthController extends Controller
                     'token' => $token,
                     'created_at' => now()
                     ]);
-                Mail::to($request->email)->send(new ForgotPasswordMail($token));
+                $this->dispatch(new ForgotPasswordEmailJob($request->email,$token));
             }catch (\Exception $e){
                 return $this->respondServerError($e,__('message.error_in_sending_email'));
             }
