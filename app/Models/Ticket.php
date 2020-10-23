@@ -18,4 +18,10 @@ class Ticket extends Model implements TranslatableContract
 
     protected $guarded = [];
 
+    public function userRedeemedTicket()
+    {
+        return $this->hasMany(Transaction::class,'entity_id','id')
+            ->where('type','redeem_ticket');
+    }
+
 }

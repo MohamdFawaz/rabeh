@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 trait APIController {
 
@@ -56,8 +57,14 @@ trait APIController {
      *
      * @return mixed
      */
-    public function respondServerError($message = 'Server Error')
+    public function respondServerError($e,$message = 'Server Error')
     {
+        $error = [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'error' => $e->getMessage(),
+        ];
+        Log::info(json_encode($error));
         return $this->setStatusCode('failed')->respondWithError($message);
     }
 

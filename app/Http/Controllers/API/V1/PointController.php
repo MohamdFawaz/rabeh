@@ -14,7 +14,17 @@ class PointController extends Controller
 
     public function redeemPoints(RedeemPointsRequest $request)
     {
-        //todo add implementation for redeem points
-        return $this->respondCreated([],__('message.points_redeemed_successfully'));
+        try {
+            $user = User::query()->select('id', 'point_balance')->where('id', $request->user_id)->first();
+            if ($request->amount > $user->point_balance) {
+                return $this->respondBadRequest(__('message.insufficient_points_amount'));
+            }
+            $user->point_balance -= $request->amount;
+            $user->save();
+            $response = ['point_balance' => $user->point_balance];
+            return $this->respondCreated($response, __('message.points_redeemed_successfully'));
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
+        }
     }
 }

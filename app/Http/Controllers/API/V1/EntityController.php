@@ -21,15 +21,22 @@ class EntityController extends Controller
 
     public function index()
     {
-        $entities = Entity::query()->withTranslation()->get(); //todo add pagination
-
-        return $this->respond(EntityResource::collection($entities));
+        try {
+            $entities = Entity::query()->withTranslation()->get(); //todo add pagination
+            return $this->respond(EntityResource::collection($entities));
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
+        }
     }
 
     public function offerBanner()
     {
-        $offer_entities = Entity::query()->withTranslation()->get(); //todo add pagination
+        try {
+            $offer_entities = Entity::query()->withTranslation()->get(); //todo add pagination
 
-        return $this->respond(EntityResource::collection($offer_entities));
+            return $this->respond(EntityResource::collection($offer_entities));
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
+        }
     }
 }

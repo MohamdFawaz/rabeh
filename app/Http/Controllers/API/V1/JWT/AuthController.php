@@ -73,14 +73,18 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        if (! $token = auth('api')->attempt($request->only('email','password'))) {
-            return $this->respondUnauthorized(__('message.unauthorized'));
+        try {
+            if (!$token = auth('api')->attempt($request->only('email', 'password'))) {
+                return $this->respondUnauthorized(__('message.unauthorized'));
+            }
+            $user = auth('api')->user();
+
+            $this->setTokenAttributes($user, $token);
+
+            return $this->respond(UserResource::make($user));
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
         }
-        $user = auth('api')->user();
-
-        $this->setTokenAttributes($user, $token);
-
-        return $this->respond(UserResource::make($user));
     }
 
     /**
@@ -90,8 +94,12 @@ class AuthController extends Controller
      */
     public function profile()
     {
-        $user = UserResource::make(User::query()->find(request()->user_id));
-        return $this->respond($user);
+        try {
+            $user = UserResource::make(User::query()->find(request()->user_id));
+            return $this->respond($user);
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
+        }
     }
 
     /**
@@ -101,11 +109,14 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        $user = User::query()->find(request()->user_id);
-        $user->setRememberToken('');
-        $user->save();
-
-        return $this->respond([],'Successfully logged out');
+        try {
+            $user = User::query()->find(request()->user_id);
+            $user->setRememberToken('');
+            $user->save();
+            return $this->respond([], 'Successfully logged out');
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
+        }
     }
 
     /**
@@ -162,8 +173,7 @@ class AuthController extends Controller
                     ]);
                 Mail::to($request->email)->send(new ForgotPasswordMail($token));
             }catch (\Exception $e){
-                Log::critical(serialize($e->getTraceAsString()));
-                return $this->respondBadRequest(__('message.error_in_sending_email'));
+                return $this->respondServerError($e,__('message.error_in_sending_email'));
             }
         }
         return $this->respond([],__('message.reset_password_email_sent'));
@@ -171,36 +181,44 @@ class AuthController extends Controller
 
     public function referralCode(ReferralCodeRequest $request)
     {
-        $validate_code = $this->validateReferralCode($request->user_id,$request->referral_code);
-        if ($validate_code === true){
-            return $this->respondCreated([],__('message.code_added_successfully'));
-        }else{
-            return $validate_code;
+        try {
+            $validate_code = $this->validateReferralCode($request->user_id, $request->referral_code);
+            if ($validate_code === true) {
+                return $this->respondCreated([], __('message.code_added_successfully'));
+            } else {
+                return $validate_code;
+            }
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
         }
     }
 
     private function validateReferralCode($user_id,$referral_code)
     {
-        $user = User::query()->select('id','coin_balance','referer_id','created_at')->where('id',$user_id)->first();
+        try {
+            $user = User::query()->select('id', 'coin_balance', 'referer_id', 'created_at')->where('id', $user_id)->first();
 
-        if ($user->referer_id){
-            return $this->respondBadRequest(__('message.already_used_referrer_code'));
+            if ($user->referer_id) {
+                return $this->respondBadRequest(__('message.already_used_referrer_code'));
+            }
+
+            $referral_user = User::query()
+                ->select('id', 'coin_balance')
+                ->where('referral_code', '=', $referral_code)
+                ->where('created_at', '<', $user->created_at)
+                ->first();
+            if (!$referral_user) {
+                return $this->respondBadRequest(__('message.incorrect_referral_code'));
+            }
+            $referral_user->coin_balance = +'100';
+            $referral_user->save();
+
+            $user->coin_balance = +'100';
+            $user->referer_id = $referral_user->id;
+            $user->save();
+            return true;
+        }catch (\Exception $e){
+            return $this->respondServerError($e);
         }
-
-        $referral_user = User::query()
-            ->select('id','coin_balance')
-            ->where('referral_code','=',$referral_code)
-            ->where('created_at','<',$user->created_at)
-            ->first();
-        if (!$referral_user){
-            return $this->respondBadRequest(__('message.incorrect_referral_code'));
-        }
-        $referral_user->coin_balance =+ '100';
-        $referral_user->save();
-
-        $user->coin_balance =+ '100';
-        $user->referer_id = $referral_user->id;
-        $user->save();
-        return true;
     }
 }

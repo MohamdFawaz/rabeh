@@ -19,4 +19,10 @@ class Voucher extends Model implements TranslatableContract
     {
         return 'https://picsum.photos/800/600'; //todo change to dynamic url
     }
+
+    public function userRedeemedVoucher()
+    {
+        return $this->hasMany(Transaction::class,'entity_id','id')
+            ->where('type','redeem_voucher');
+    }
 }
