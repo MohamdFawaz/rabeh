@@ -61,8 +61,7 @@ class AuthController extends Controller
             Mail::to($request->email)->send(new NewUserVerificationMail());
             return $this->respond([], __('message.register.registered_successfully'));
         }catch (\Exception $e){
-            Log::critical(serialize($e->getTrace()));
-            return $this->respondBadRequest(__('message.something_went_wrong'));
+            return $this->respondServerError(__('message.something_went_wrong'));
         }
     }
 
