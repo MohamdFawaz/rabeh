@@ -108,7 +108,7 @@ trait APIController {
      */
     public function respondCreated($data = [],$message = 'Created Successfully')
     {
-        return $this->setStatusCode('failed')->respond($data,$message);
+        return $this->setStatusCode('success')->respond($data,$message);
     }
 
     /**
