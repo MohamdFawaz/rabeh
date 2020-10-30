@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -33,5 +34,33 @@ class AuthController extends Controller
         DB::table('password_resets')->where('token',$request->token)->delete();
 
         return view('web.password_updated_page');
+    }
+
+    public function verifyEmail()
+    {
+        $email = request()->get('email');
+        $token = request()->get('token');
+        if ($email && $token){
+            $verify_mail = DB::table('mail_verification')
+                ->select('email','token')
+                ->where('email',$email)
+                ->where('token',$token)->orderBy('id','desc')->first();
+            if ($verify_mail){
+                $user = User::query()->where('email',$email)->first();
+                $user->email_verified_at = Carbon::now();
+                $code = User::query()
+                               ->select('user_code')
+                               ->whereNotNull('user_code')->first();
+                $latest_code = (int)$code->user_code;
+                $user->user_code = str_pad(($latest_code + 1),4,"0",STR_PAD_LEFT);
+                $user->referral_code = str_pad(($latest_code + 1),4,"0",STR_PAD_LEFT);
+                $user->save();
+                DB::table('mail_verification')->where('email',$email)->delete();
+                return view('web.email_verified_page');
+            }else{
+                return view('web.email_expired_or_incorrect_page');
+            }
+        }
+        return view('web.email_expired_or_incorrect_page');
     }
 }

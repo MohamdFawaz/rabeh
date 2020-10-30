@@ -9,6 +9,8 @@ use App\Http\Requests\API\Auth\ReferralCodeRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Http\Requests\API\ForgotPasswordRequest;
 use App\Http\Resources\API\UserResource;
+use App\Jobs\ForgotPasswordEmailJob;
+use App\Jobs\WelcomeEmailJob;
 use App\Mail\ForgotPasswordMail;
 use App\Mail\NewUserVerificationMail;
 use App\Models\User;
@@ -61,7 +63,7 @@ class AuthController extends Controller
                 }
             }
 //            $this->dispatch(new WelcomeEmailJob($request->email));
-            Mail::to($request->email)->send(new NewUserVerificationMail());
+            Mail::to($request->email)->send(new NewUserVerificationMail($request->email));
             return $this->respond(UserResource::make($user), __('message.register.registered_successfully'));
         }catch (\Exception $e){
             return $this->respondServerError($e,__('message.something_went_wrong'));
@@ -96,7 +98,7 @@ class AuthController extends Controller
                     return $validate_referral;
                 }
             }
-            Mail::to($request->email)->send(new NewUserVerificationMail());
+            Mail::to($request->email)->send(new NewUserVerificationMail($request->email));
             return $this->respond(UserResource::make($user), __('message.register.registered_successfully'));
         }catch (\Exception $e){
             return $this->respondServerError($e,__('message.something_went_wrong'));

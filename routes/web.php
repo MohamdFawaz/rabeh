@@ -21,3 +21,5 @@ Route::get('/', function () {
 
 Route::get('/auth/reset-password',[AuthController::class,'resetPassword'])->name('web.resetPasswordForm');
 Route::post('/auth/reset-password',[AuthController::class,'updatePassword']);
+
+Route::get('/auth/verify-email',[AuthController::class,'verifyEmail'])->name('web.verifyEmail');
