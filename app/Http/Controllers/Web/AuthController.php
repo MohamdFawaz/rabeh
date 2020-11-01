@@ -48,10 +48,8 @@ class AuthController extends Controller
             if ($verify_mail){
                 $user = User::query()->where('email',$email)->first();
                 $user->email_verified_at = Carbon::now();
-                $code = User::query()
-                               ->select('user_code')
-                               ->whereNotNull('user_code')->first();
-                $latest_code = (int)$code->user_code;
+                $code = User::query()->max('user_code');
+                $latest_code = (int)$code;
                 $user->user_code = str_pad(($latest_code + 1),4,"0",STR_PAD_LEFT);
                 $user->referral_code = str_pad(($latest_code + 1),4,"0",STR_PAD_LEFT);
                 $user->save();
