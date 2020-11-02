@@ -9,6 +9,7 @@ use App\Http\Requests\API\Auth\ReferralCodeRequest;
 use App\Http\Requests\API\Auth\RegisterRequest;
 use App\Http\Requests\API\ForgotPasswordRequest;
 use App\Http\Resources\API\UserResource;
+use App\Http\Services\PushNotificationService;
 use App\Jobs\ForgotPasswordEmailJob;
 use App\Jobs\WelcomeEmailJob;
 use App\Mail\ForgotPasswordMail;
@@ -263,5 +264,20 @@ class AuthController extends Controller
         }catch (\Exception $e){
             return $this->respondServerError($e);
         }
+    }
+
+    public function testNotification($id = null)
+    {
+        if ($id){
+            $user = User::query()->where('id',$id)->first();
+        }else{
+            $user = User::query()->where('id',request()->user_id)->first();
+        }
+        return PushNotificationService::sendTransactionNotification('test',
+            '+',
+            '100',
+            'Points',
+            $user->firebase_token
+        );
     }
 }

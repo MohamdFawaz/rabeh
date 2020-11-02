@@ -44,5 +44,8 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
            Route::post('/redeem',[PointController::class,'redeemPoints']);
         });
 
+    Route::get('/test-notification/{id?}',[AuthController::class,'testNotification']);
+
+
 });
 
