@@ -50,8 +50,8 @@ class AuthController extends Controller
                 $user->email_verified_at = Carbon::now();
                 $code = User::query()->max('user_code');
                 $latest_code = (int)$code;
-                $user->user_code = str_pad(($latest_code + 1),4,"0",STR_PAD_LEFT);
-                $user->referral_code = str_pad(($latest_code + 1),4,"0",STR_PAD_LEFT);
+                $user->user_code = "2" . str_pad(($latest_code + 1),3,"0",STR_PAD_LEFT);
+                $user->referral_code = "2" . str_pad(($latest_code + 1),3,"0",STR_PAD_LEFT);
                 $user->save();
                 DB::table('mail_verification')->where('email',$email)->delete();
                 return view('web.email_verified_page');
