@@ -53,7 +53,7 @@ class TicketController extends Controller
             $newTransaction->transaction_amount = $ticket->price;
             $newTransaction->entity_id = $request->ticket_id;
             $newTransaction->save();
-            return $this->respondCreated([]);
+            return $this->respondCreated([],__('message.redeem.ticket_redeemed_successfully'));
         }catch (\Exception $e){
             return $this->respondServerError($e);
         }

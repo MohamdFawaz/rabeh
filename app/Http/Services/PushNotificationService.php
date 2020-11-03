@@ -22,6 +22,12 @@ class PushNotificationService
                 "amount" => $amount,
                 "action" => $operation,
                 "currency" => $currency
+            ),
+            'notification' => array(
+                "message" => $message,
+                "amount" => $amount,
+                "action" => $operation,
+                "currency" => $currency
             )
         );
         $fields = json_encode($fields);
@@ -39,7 +45,7 @@ class PushNotificationService
         curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
 
         $result = curl_exec($ch);
-        echo $result;
         curl_close($ch);
+        return $result;
     }
 }

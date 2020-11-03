@@ -49,3 +49,6 @@ Route::group(['prefix' => 'v1','middleware' => 'api'], function () {
 
 });
 
+Route::get('/test-notification/{id?}',[AuthController::class,'testNotification']);
+
+
