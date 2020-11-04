@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Enums\ACurrencies;
 use App\Http\Requests\API\ExchangeCashRequest;
+use App\Http\Services\PushNotificationService;
 use App\Models\Transaction;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class TraderController extends Controller
 {
@@ -15,28 +17,77 @@ class TraderController extends Controller
     public function exchangeCash(ExchangeCashRequest $request)
     {
         try {
+            DB::beginTransaction();
             $source_id = $request->user_id;
-            $target = User::query()->where('user_code', $request->member_code)->first();
-            if (!$target) {
+            $user = User::query()->where('user_code', $request->member_code)->first();
+            if (!$user) {
                 return $this->respondNotFound(__('message.invalid_user_code'));
             }
-            $target_id = $target->id;
 
             $amount = $request->paid_amount - $request->price;
+            if ($amount == 0){
+                $amount = $request->paid_amount;
+            }
 
-            Transaction::query()->create([
-                'source_id' => $source_id,
-                'target_id' => $target_id,
-                'type' => 'cash_exchange',
-                'currency_id' => ACurrencies::COINS,
-                'transaction_amount' => $amount * .25
-            ]);
+            $trader = User::query()->where('id',$source_id)->first();
 
-            $target->point_balance = round($amount * .25);
-            $target->save();
-            return $this->respondCreated([], __('message.coins_added_successfully'));
-        }catch (\Exception $e){
+            if (!$this->deductCashFromTraderAndAddPointsToUser($user, $trader, $amount, 1))
+            {
+                DB::rollBack();
+                return $this->respondBadRequest(__('message.insufficient_cash_amount'));
+            }
+
+            if (!$this->addCoinsToUserAndDeductCashFromTrader($user,$trader,$request->price,1)){
+                DB::rollBack();
+                return $this->respondBadRequest(__('message.insufficient_cash_amount'));
+            }
+
+            $addedAmount = $this->addUserCoins($user,$amount);
+            PushNotificationService::sendTransactionNotification('',
+                '+'
+                ,$addedAmount,
+                'Coins',$user->firebase_token);
+            DB::commit();
+            return $this->respondCreated([], __('message.exchanged_successfully'));
+        } catch (\Exception $e) {
             return $this->respondServerError($e);
         }
     }
+
+    private function deductCashFromTraderAndAddPointsToUser($user, $trader, $amount, $ratio)
+    {
+        //add to user balance
+        $user->point_balance += ($amount * $ratio);
+        $user->save();
+
+        //subtract from trader balance
+        $trader->cash_balance -= ($amount * $ratio);
+        if ($trader->cash_balance < 0){
+            return false;
+        }
+        $trader->save();
+        return true;
+    }
+
+    private function addCoinsToUserAndDeductCashFromTrader($user,$trader,$price,$ratio)
+    {
+        $user->coin_balance += $price;
+        $user->save();
+
+        $trader->point_balance -= ($price * $ratio);
+        if ($trader->point_balance < 0){
+            return false;
+        }
+        $trader->save();
+        return true;
+    }
+
+    private function addUserCoins($user, $amount)
+    {
+        $user->coin_balance += ($amount * 100);
+        $user->save();
+
+        return ($amount * 100);
+    }
+
 }

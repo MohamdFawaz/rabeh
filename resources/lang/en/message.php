@@ -15,6 +15,8 @@ return array (
   'unauthorized' => "Please check your email and password",
   'something_went_wrong' => 'Something went wrong, Please try again later',
   'invalid_user_code' => "Invalid user code",
+  'insufficient_cash_amount' => "Insufficient cash amount",
+  'exchanged_successfully' => "Exchanged Successfully",
   'register' => [
       'registered_successfully'  => 'Account Created Successfully'
   ]

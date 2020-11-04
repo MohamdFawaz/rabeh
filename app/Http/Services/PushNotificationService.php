@@ -17,21 +17,31 @@ class PushNotificationService
         (
             'title'		=> 'This is a title. title',
             'subtitle'	=> 'This is a subtitle. subtitle',
-            'tickerText'	=> 'Ticker text here...Ticker text here...Ticker text here',
-            'vibrate'	=> 1,
-            'sound'		=> 1,
-            'largeIcon'	=> 'large_icon',
-            'smallIcon'	=> 'small_icon',
-            "message" => $message,
-            "amount" => $amount,
-            "action" => $operation,
-            "currency" => $currency
+            'body' => [
+                "message" => $message,
+                "amount" => $amount,
+                "action" => $operation,
+                "currency" => $currency
+            ]
         );
         $fields = array(
             'registration_ids' => array(
                 $id
             ),
-            'data' => $msg
+            'data' => array (
+                'title'		=> 'This is a title. title',
+                'subtitle'	=> 'This is a subtitle. subtitle',
+                "message" => $message,
+                "amount" => $amount,
+                "action" => $operation,
+                "currency" => $currency,
+                "body" => [
+                    "message" => $message,
+                    "amount" => $amount,
+                    "action" => $operation,
+                    "currency" => $currency,
+                ]
+            )
         );
         $fields = json_encode($fields);
 
@@ -45,6 +55,7 @@ class PushNotificationService
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
         curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
 
         $result = curl_exec($ch);
